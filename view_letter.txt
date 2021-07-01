@@ -1,0 +1,13 @@
+
+drop view view_letters;
+create view view_letters as
+
+
+select filename,
+customernumber,
+(select concat(concat(fname,' '),lname) from customers where customernumber like lpad(l.customernumber,10,'0')) as Name,
+branch,
+substr(filename,1,10) as Date_upload
+
+
+from letters l;

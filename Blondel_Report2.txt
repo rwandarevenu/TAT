@@ -1,0 +1,51 @@
+ drop view if exists report2;
+		create view report2 as
+
+select 
+(select reception from customercare where customernumber=(select customernumber from applications where referencenumber=d.referencenumber) limit 1)as reception_date,
+(select concat(concat(fname,' '),lname) from customers where customernumber=(select customernumber from applications where referencenumber=d.referencenumber))as CustomerName,
+(select branch_name from branch where branch_code=(select branch from users where userid=(select userid from applications where referencenumber=d.referencenumber)))as branch,
+ 
+(select concat(concat(fname,''),lname) from users where userid=d.userid)as Analyst,
+(select concat(concat(fname,''),lname) from users where userid=(select userid from applications where referencenumber=d.referencenumber))as Relationship,
+d.dateofdec,
+(select record_date from record where record_referencenumber=d.referencenumber and record_id=4)  as HOCC_App_Date,
+(select amount from informations where referencenumber=d.referencenumber)as Amount,
+(select record_approvedamount from record where record_referencenumber=d.referencenumber and record_id=4)as Approved_Amount,
+(select status from applications where referencenumber=d.referencenumber)as C_status
+
+from decisions d 
+where d.status like '%pending%' and d.dateofdec > '2018-10-31' group by d.referencenumber ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---version 1----------
+
+select 
+(select reception from customercare where customernumber=(select customernumber from applications where referencenumber=d.referencenumber) limit 1)as reception_date,
+(select concat(concat(fname,' '),lname) from customers where customernumber=(select customernumber from applications where referencenumber=d.referencenumber))as CustomerName,
+(select branch_name from branch where branch_code=(select branch from users where userid=(select userid from applications where referencenumber=d.referencenumber)))as branch,
+ 
+d.dateofdec as HOCC_App_Date,
+(select amount from informations where referencenumber=d.referencenumber)as Amount,
+(select record_approvedamount from record where record_referencenumber=d.referencenumber and record_id=4)as Approved_Amount,
+d.status ,
+(select status from applications where referencenumber=d.referencenumber)as C_status
+from decisions d 
+where d.status like '%pending%' and d.dateofdec > '2018-10-31' group by d.referencenumber limit 20;
+
+

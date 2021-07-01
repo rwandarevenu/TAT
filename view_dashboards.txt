@@ -1,0 +1,41 @@
+=============view view_head of credit==============
+drop view view_headofcreditdashboard;
+
+create view view_headofcreditdashboard as 
+
+
+select   count(*) as today 
+,
+(select  count(*)from applications where status='New') as rso  
+,
+(select   count(*)as bco from to_manager where status='New')as bco 
+,
+(select  count(*)  from to_reception where status='on way')as recep
+,
+(select  count(*) from to_Creditanalyst where status='new')as analysis 
+,
+(select   count(*)  from to_creditcomity where status='new')as hoc
+
+
+from customercare where reception=curdate();
+
+
+====================view view_chart==================================
+
+drop view view_chart;
+
+create view view_chart as 
+
+select count(*) as jan,
+(select count(*) from customercare where month(reception)=2 and year(reception)=year(curdate()))as feb,
+(select count(*) from customercare where month(reception)=3 and year(reception)=year(curdate()))as mar,
+(select count(*) from customercare where month(reception)=4 and year(reception)=year(curdate()))as apr,
+(select count(*) from customercare where month(reception)=5 and year(reception)=year(curdate()))as may,
+(select count(*) from customercare where month(reception)=6 and year(reception)=year(curdate()))as jun,
+(select count(*) from customercare where month(reception)=7 and year(reception)=year(curdate()))as jul,
+(select count(*) from customercare where month(reception)=8 and year(reception)=year(curdate()))as aug,
+(select count(*) from customercare where month(reception)=9 and year(reception)=year(curdate()))as sep,
+(select count(*) from customercare where month(reception)=10 and year(reception)=year(curdate()))as oct,
+(select count(*) from customercare where month(reception)=11 and year(reception)=year(curdate()) )as nov,
+(select count(*) from customercare where month(reception)=12 and year(reception)=year(curdate()))as dece
+from customercare where month(reception)=1 and year(reception)=year(curdate());

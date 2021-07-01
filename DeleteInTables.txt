@@ -1,0 +1,83 @@
+delete from	 applicationreturn ;   
+delete from		 applications ;            
+delete from		 borderau  ;              
+			  
+	delete from	 checklistanswers ;        
+	delete from	 checklistcomment ;        
+	delete from	 collaterals  ;            
+					
+	delete from	 customercare ;            
+				 
+		delete from decisions ;               
+		delete from decisions_report ;        
+		delete from disbursed  ;              
+		delete from disbursement;             
+		delete from documentneeded;           
+		delete from informations;             
+					 
+		delete from notifiedlegal;            
+		delete from problems   ;              
+					   
+		delete from to_creditanalyst ;        
+		delete from to_creditanalystdecision ;
+		delete from to_creditcomity   ;       
+		delete from to_legal      ;           
+		delete from to_loanadmin  ;           
+		delete from to_loannotified ;         
+		delete from to_manager ;            
+		delete from to_reception  ;           
+		delete from to_receptionreturn ;      
+		delete from to_riskmanager ; 
+delete from record;		
+		  
+		  
+		  =======================================================================Data Clean Up=========================================================
+		  
+		
+		delete from to_riskmanager where referencenumber in(select referencenumber from to_creditanalyst where status in('Postponed','Pending in Analysis','New') and datereached < '2018-09-01');
+		
+		
+		delete from to_reception where referencenumber in(select referencenumber from to_creditanalyst where status in('Postponed','Pending in Analysis','New') and datereached < '2018-09-01');
+		
+		delete from to_manager where referencenumber in(select referencenumber from to_creditanalyst where status in('Postponed','Pending in Analysis','New') and datereached < '2018-09-01');
+		
+		delete from applications where referencenumber in(select referencenumber from to_creditanalyst where status in('Postponed','Pending in Analysis','New') and datereached < '2018-09-01');
+		
+		delete from informations where referencenumber in(select referencenumber from to_creditanalyst where status in('Postponed','Pending in Analysis','New') and datereached < '2018-09-01');
+		delete from decisions where referencenumber in(select referencenumber from to_creditanalyst where status in('Postponed','Pending in Analysis','New') and datereached < '2018-09-01');
+		delete from checklistanswers where referencenumber in(select referencenumber from to_creditanalyst where status in('Postponed','Pending in Analysis','New') and datereached < '2018-09-01');
+		
+		
+		delete from to_creditanalyst where status in('Postponed','Pending in Analysis','New') and datereached < '2018-09-01';
+		
+		
+		
+		delete from to_reception where referencenumber in(select referencenumber from to_riskmanager where status in('New','Returned') and timereached < '2018-09-01');
+		delete from to_manager where referencenumber in(select referencenumber from to_riskmanager where status in('New','Returned') and timereached < '2018-09-01');
+		delete from applications where referencenumber in(select referencenumber from to_riskmanager where status in('New','Returned') and timereached < '2018-09-01');
+		delete from informations where referencenumber in(select referencenumber from to_riskmanager where status in('New','Returned') and timereached < '2018-09-01');
+		delete from decisions where referencenumber in(select referencenumber from to_riskmanager where status in('New','Returned') and timereached < '2018-09-01');
+		delete from checklistanswers where referencenumber in(select referencenumber from to_riskmanager where status in('New','Returned') and timereached < '2018-09-01');
+		
+		delete from to_riskmanager where status in('New','Returned') and timereached < '2018-09-01';
+		
+		
+		delete from to_manager where referencenumber in(selecT referencenumber from to_reception  where dateof < '2018-09-01' and status='on way');
+		delete from informations where referencenumber in(selecT referencenumber from to_reception  where dateof < '2018-09-01' and status='on way');
+		delete from applications where referencenumber in(selecT referencenumber from to_reception  where dateof < '2018-09-01' and status='on way');
+		delete from checklistanswers where referencenumber in(selecT referencenumber from to_reception  where dateof < '2018-09-01' and status='on way');
+		delete from decisions where referencenumber in(selecT referencenumber from to_reception  where dateof < '2018-09-01' and status='on way');
+		delete from to_reception  where dateof < '2018-09-01' and status='on way';
+		
+		
+		 delete from informations where referencenumber in(selecT referencenumber from to_manager where dateof < '2018-09-01' and status='New');
+		  delete from decisions where referencenumber in(selecT referencenumber from to_manager where dateof < '2018-09-01' and status='New');
+		   delete from applications where referencenumber in(selecT referencenumber from to_manager where dateof < '2018-09-01' and status='New');
+		    delete from checklistanswers where referencenumber in(selecT referencenumber from to_manager where dateof < '2018-09-01' and status='New');
+			 delete from collaterals where referencenumber in(selecT referencenumber from to_manager where dateof < '2018-09-01' and status='New');
+			 
+			 delete   from to_manager where dateof < '2018-09-01' and status='New';
+			 
+			 
+			 
+			 delete From applications where dateofapp < '2018-09-01' and status='New';

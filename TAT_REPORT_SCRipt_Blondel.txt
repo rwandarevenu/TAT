@@ -1,0 +1,41 @@
+		 drop view if exists report;
+		create view report as
+		select 
+		referencenumber,
+		customernumber,
+		(select branch_name from branch where branch_code=(select branch from users where userid=a.userid)) as branch,
+
+		(select reception from customercare where customernumber=a.customernumber order by reception desc limit 1)as reception,
+
+		(select concat(concat(fname,' '),lname) from customers where customernumber=a.customernumber) as Customer_Names,
+
+		(select phone from customers where customernumber=a.customernumber) as Phone,
+
+		(select concat(concat(fname,' '),lname) from users u,informations i where u.userid=i.primarybo and i.referencenumber=a.referencenumber) as Primary_RSO,
+
+		(select concat(concat(fname,' '),lname) from users u,informations i where u.userid=i.secondaryBo and i.referencenumber=a.referencenumber) as Secondary_RSO,
+
+		(select rsn_desc from loanpurpose p,informations i where p.rsn_cd=i.rsn_cd and i.referencenumber=a.referencenumber) as purpose,
+
+		(select industry_desc from business_sectors p,informations i where p.industry_cd=i.industry_cd and i.referencenumber=a.referencenumber) as Business_sector,
+
+		(select prod_desc from products p,informations i where p.prod_cd=i.prod_cd and i.referencenumber=a.referencenumber) as Product,
+
+		(select amount from informations i where i.referencenumber=a.referencenumber) as amount,
+
+		(select concat(concat(termloan,' '),termtype) from informations i where i.referencenumber=a.referencenumber) as Term_Requested, 
+
+		(select lendingpercentage from informations i where i.referencenumber=a.referencenumber) as rate,
+
+		(select concat(concat(fname,' '),lname) from users u,to_creditanalyst c where u.userid=c.userid and c.referencenumber=a.referencenumber) as Analyst,
+				
+		(select status from decisions d where d.referencenumber=a.referencenumber order by dateofdec desc limit 1) as dec_HOCC,
+		
+		(select dateofdec from decisions d where d.referencenumber=a.referencenumber order by dateofdec desc limit 1) as date_HOCC,
+		
+		(select comment from decisions d where d.referencenumber=a.referencenumber order by dateofdec desc limit 1) as comment,
+
+(select datereached from to_creditanalyst  c where c.referencenumber=a.referencenumber order by datereached desc limit 1) as Analyst_assigneddate		
+		
+		
+		from applications a where a.status!='New' and a.referencenumber in(select referencenumber from to_manager) ;

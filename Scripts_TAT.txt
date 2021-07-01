@@ -1,0 +1,314 @@
+----View of Analysed Files-------------
+
+drop view view_analysed;
+create view view_analysed as 
+
+select  to_cr.referencenumber,
+(select concat(concat(fname,' '),lname) from users where userid=to_cr.userid) as Analyst,
+
+(select branch_name from branch where branch_code=(select users.branch from  users where userid=(select userid from applications where referencenumber=to_cr.referencenumber))) as branchName,
+
+(select concat(concat(fname,' '),lname) from customers  where customernumber=(select customers.customernumber from  customers where customernumber=(select customernumber from applications where referencenumber=to_cr.referencenumber))) as Applicant,
+to_cr.status
+ 
+  from to_creditanalystdecision to_cr ;
+  
+  
+  
+  
+  
+  
+  
+  -----View of Analysed Files-------------
+  
+  
+  
+  ----View of Credit analyst Dashboard-------------
+
+drop view view_analyst;
+create view view_analyst as 
+
+select datereached,userid,to_cr.referencenumber,
+ 
+
+(select branch_name from branch where branch_code=(select users.branch from  users where userid=(select userid from applications where referencenumber=to_cr.referencenumber))) as branchName,
+
+(select concat(concat(fname,' '),lname) from customers  where customernumber=(select customers.customernumber from  customers where customernumber=(select customernumber from applications where referencenumber=to_cr.referencenumber))) as Applicant,
+
+(select amount from informations where referencenumber=to_cr.referencenumber) as amount,
+to_cr.status
+,(select concat(concat(fname,' '),lname) from users where userid=to_cr.userid) as Staff
+
+  from to_creditanalyst to_cr   where status in('New','Postponed','Pending in Analysis');
+  
+  
+  
+  
+  
+  
+  
+  -----View of Analysed Files-------------
+  
+  ************CREATE TABLE OF RECORD***************
+  
+  create table record
+  (
+  record_id int ,
+  record_referencenumber varchar(255),
+  record_approvedamount double,
+  record_approvedrate double,
+  record_approvedterm varchar(55),
+  record_date datetime,
+  primary key(record_id,record_referencenumber)
+  );
+  
+  
+  
+  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  
+  drop view view_loanadmin;
+  
+  create view view_loanadmin  as
+  
+  select 
+  re.referencenumber,
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,
+  (select amount from informations where referencenumber=re.referencenumber)as Amounts,
+  
+  re.timereached,
+  re.status
+  
+  
+  from  to_loanadmin re;
+  
+  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  
+   drop view view_legal;
+  
+  create view view_legal  as
+  
+  select 
+  re.referencenumber,
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,
+  (select amount from informations where referencenumber=re.referencenumber)as Amounts,
+  
+  re.timereached,
+  re.status
+  
+  
+  from  to_legal re  ;
+  
+  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  
+  drop view view_search;
+  
+  create view view_search as 
+  
+  select referencenumber,
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=ap.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=ap.referencenumber)) as Names,
+  status
+  
+  from applications ap ;
+  
+  
+  ==========================================================
+  
+  drop view view_dash_risk;
+  
+  create view view_dash_risk as  
+  
+  select concat(concat(fname,' '),lname)as Names,
+  (select count(*) from to_creditanalyst where userid=u.userid and status='New') as New,
+  
+  (select count(*) from to_creditanalyst where userid=u.userid and status='Pending in Analysis') as Pending ,
+  (select count(*) from to_creditanalyst where userid=u.userid and status='Approved') as Approved
+   
+  
+  from users u where role like '%CREDIT ANALYST%';   
+ 
+ 
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+ drop view view_dash_risk_own;
+ 
+ create view view_dash_risk_own as 
+ 
+ select  count(*) as New_Files ,
+  (select count(*)  from to_creditanalyst where status='Pending in Analysis')as Pending ,
+  
+  (select count(*)  from to_riskmanager where status='Approved')as Approved,
+  (select count(*)  from to_riskmanager where status='Returned')as Returned,  
+   (select count(*)  from to_riskmanager where status='Postponed')as Postponed,
+   (select count(*)  from to_riskmanager where status='Rejected')as Rejected
+   from to_riskmanager where status='New';
+  
+  ==================================================================================================================View Loan Admin_signal
+  
+  drop view view_loan_sign;
+  
+  create view view_loan_sign as
+  
+  select referencenumber,
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=lo.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=lo.referencenumber)) as Names,
+  (select amount from informations where referencenumber=lo.referencenumber)as Amounts,
+  timereached,
+  status
+  
+  from to_loanadmin lo where status='disbursement' order by timereached;
+  ========================================================================================================================================================
+  drop view  view_reception;
+  
+  create view view_reception as 
+  
+  select referencenumber ,
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,
+  messengername,messengerphone,dateof,
+status
+  
+  from to_reception re where status='on way';
+  ========================================================================================================================================================
+  
+  ==============================**********************************************************************************view Reception_Notification----------------------
+  
+  drop view view_reception_notification;
+  
+  create view view_reception_notification as
+  
+  select referencenumber,
+(select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,
+status ,
+(select userid from applications where referencenumber=re.referencenumber)as Userid
+
+
+  
+  from to_receptionreturn re  ;
+  
+  
+  
+  ==============================================================RSO for Notification
+  
+  drop view view_rso_notification;
+  
+  create view view_rso_notification as 
+  
+  select referencenumber,
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,dateofapp,
+status,userid
+  
+  from applicationreturn re;
+  
+  
+  ========================================================================
+  
+  drop view view_legal_aoma;
+  
+  create view view_legal_aoma as 
+  
+  select referencenumber,
+ (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,timereached,
+status  
+  
+  from notifiedlegal re ;
+  
+  
+  
+  ==========================================================================================view for Managers Files==========================================
+  
+  drop view view_manager;  
+  
+  create view view_manager as 
+  
+  select referencenumber,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,
+  dateof,
+  (select amount from informations where referencenumber=re.referencenumber)as Amounts,
+  status,
+  (select branch_code from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as branc
+  
+  
+  from to_manager re ;
+  
+  ========================================================================================view view_rso_notification
+  
+   drop view view_rso;  
+  
+  create view view_rso as 
+  
+  select referencenumber,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,
+  dateofapp,
+  (select amount from informations where referencenumber=re.referencenumber)as Amounts,
+  status,
+  userid,customernumber,
+  (select phone from customers where customernumber=re.customernumber)as phone,
+  (select customernumber from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as customerN
+  
+  
+  from applications re;
+  
+ 
+  
+  
+  ===================================================================================================view_loan_notified
+  
+   drop view view_loan_notified;  
+  
+  create view view_loan_notified as 
+  
+  select referencenumber,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as Branch,
+  dateof,
+  (select amount from informations where referencenumber=re.referencenumber)as Amounts,
+  status 
+  from to_loannotified re  group by referencenumber;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  =======================================================view_disbursement---------------------
+  
+    drop view view_disbursement;  
+  
+  create view view_disbursement as 
+  
+  select referencenumber,
+  
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=re.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=re.referencenumber)) as Names,
+  
+  (select amount from informations where referencenumber=re.referencenumber)as Amounts,
+  status 
+  from disbursement re ;
+  
+  
+  ================================================================================================================================view_hob
+  
+  drop view view_hob;
+  
+  create view view_hob as 
+  
+ select referencenumber,
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=ap.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=ap.referencenumber)) as Names,
+  (select amount from informations where referencenumber=ap.referencenumber) as amount,
+  (select prod_desc from products where prod_cd=(select industry_cd from informations where referencenumber=ap.referencenumber)) as type,
+  reception,
+  status
+  
+  from applications ap ;
+  

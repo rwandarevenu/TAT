@@ -1,0 +1,12 @@
+select 
+  (select branch_name from branch where branch_code=(select users.branch from users where userid=(select applications.userid from applications where applications.referencenumber=ap.referencenumber)))as Branch,
+  (select concat(concat(customers.fname,' '),customers.lname) from customers where customernumber=(select customernumber from applications where referencenumber=ap.referencenumber)) as Names,
+  (select amount from informations where referencenumber=ap.referencenumber) as amount,
+  timereached,
+   (select dateofdec from decisions where referencenumber=ap.referencenumber and status like '%From legal to Loan admin for sign%' limit 1) as timeSent
+  
+  
+  
+  from to_legal ap where timereached between '2018-09-01' and '2018-09-30'  order by Branch 
+  
+  into outfile 'C:\\Users\\tatserver\\Desktop\\LEGAL_SEPT_2018.xls';
